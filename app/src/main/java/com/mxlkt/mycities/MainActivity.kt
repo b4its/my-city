@@ -19,6 +19,7 @@ import com.mxlkt.mycities.config.Routes
 import com.mxlkt.mycities.config.Routes.Dashboard
 import com.mxlkt.mycities.pages.Dashboards
 import com.mxlkt.mycities.pages.places.PlaceList
+import com.mxlkt.mycities.pages.places.PlaceView
 import com.mxlkt.mycities.ui.theme.MyCitiesTheme
 
 class MainActivity : ComponentActivity() {
@@ -45,6 +46,9 @@ class MainActivity : ComponentActivity() {
                 }
                 composable(Routes.PlaceList) {
                     PlaceList(navController)
+                }
+                composable(Routes.PlaceView) {
+                    PlaceView(navController)
                 }
 
             }

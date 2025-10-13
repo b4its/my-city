@@ -39,7 +39,7 @@ fun Dashboards(navController: NavController) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = stringResource(id = R.string.my_city)) },
+                title = { Text(text = "Kategori - My City") },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
@@ -59,7 +59,7 @@ fun Dashboards(navController: NavController) {
                     modifier = Modifier.height(100.dp) // biar tinggi kolomnya jelas
                 ) {
                     Text(
-                        "Jembatan Mahakam",
+                        "Wisata",
                         style = TextStyle(color = Color.Black, fontWeight = FontWeight.Bold)
                     )
                     Text(

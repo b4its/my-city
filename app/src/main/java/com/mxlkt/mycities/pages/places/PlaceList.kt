@@ -8,12 +8,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -36,13 +41,25 @@ fun PlaceList(navController: NavController) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = stringResource(id = R.string.my_city)) },
-                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                title = { Text(text = "Daftar Tempat") },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.navigate(Routes.Dashboard)
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Kembali",
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFF172F60),
-                    titleContentColor = Color.White
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
                 )
             )
-        }
+        },
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
             Row(modifier = Modifier.padding(12.dp)) {
@@ -67,7 +84,7 @@ fun PlaceList(navController: NavController) {
                     Spacer(modifier = Modifier.weight(1f))
                     Button(
                         onClick = {
-                            navController.navigate(Routes.Dashboard)
+                            navController.navigate(Routes.PlaceView)
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF0D2764), // warna latar tombol
