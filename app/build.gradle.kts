@@ -58,4 +58,15 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     // Jetpack Compose integration
     implementation("androidx.navigation:navigation-compose:2.9.1")
+
+    // Retrofit & Gson
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0") // Opsional, untuk debugging
+
+    // ViewModel for Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+
+    // Untuk build.gradle.kts (Kotlin DSL)
+    implementation("io.coil-kt:coil-compose:2.5.0") // Cek versi terbaru jika perlu
 }

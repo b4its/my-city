@@ -6,4 +6,5 @@ object Routes
     const val Dashboard = "Dashboard"
     const val PlaceList = "PlaceList"
     const val PlaceView = "PlaceView"
+
 }
