@@ -1,5 +1,3 @@
-// File baru: com/mxlkt/mycities/data/view/PlaceDetailViewModel.kt
-
 package com.mxlkt.mycities.data.view
 
 import androidx.compose.runtime.getValue
@@ -10,22 +8,33 @@ import androidx.lifecycle.viewModelScope
 import com.mxlkt.mycities.config.ApiConf
 import com.mxlkt.mycities.data.model.Place
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import java.io.IOException
 
-// Definisikan state untuk UI detail tempat
+/**
+ * Sealed interface untuk state UI di layar detail tempat.
+ */
 sealed interface PlaceDetailUiState {
-    data class Success(val place: Place) : PlaceDetailUiState // Hanya satu 'Place'
+    data class Success(val place: Place) : PlaceDetailUiState
     object Error : PlaceDetailUiState
     object Loading : PlaceDetailUiState
 }
 
+/**
+ * ViewModel yang bertanggung jawab untuk mengambil data detail satu tempat.
+ */
 class PlaceDetailViewModel : ViewModel() {
 
+    /**
+     * Properti untuk menampung state UI detail.
+     */
     var placeDetailUiState: PlaceDetailUiState by mutableStateOf(PlaceDetailUiState.Loading)
         private set
 
-    // Fungsi untuk mengambil detail tempat berdasarkan ID-nya
-    fun getPlaceById(placeId: String) {
+    /**
+     * Fungsi untuk mengambil data satu tempat berdasarkan ID-nya.
+     */
+    fun getPlaceById(placeId: Int) {
         viewModelScope.launch {
             placeDetailUiState = PlaceDetailUiState.Loading
             placeDetailUiState = try {
@@ -33,7 +42,7 @@ class PlaceDetailViewModel : ViewModel() {
                 PlaceDetailUiState.Success(result)
             } catch (e: IOException) {
                 PlaceDetailUiState.Error
-            } catch (e: retrofit2.HttpException) {
+            } catch (e: HttpException) {
                 PlaceDetailUiState.Error
             }
         }

@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -25,6 +26,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.mxlkt.mycities.R
 import com.mxlkt.mycities.config.Routes
+import com.mxlkt.mycities.config.buildAuthorizedImageRequest
 import com.mxlkt.mycities.data.model.Place
 import com.mxlkt.mycities.data.view.PlaceUiState
 import com.mxlkt.mycities.data.view.PlaceViewModel
@@ -32,27 +34,27 @@ import com.mxlkt.mycities.data.view.PlaceViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaceList(
-    // Terima categoryId dari Navigasi dan inject ViewModel
     categoryId: String?,
     navController: NavController,
     placeViewModel: PlaceViewModel = viewModel()
 ) {
-    // Minta data ke ViewModel saat layar pertama kali ditampilkan
     LaunchedEffect(key1 = categoryId) {
-        if (categoryId != null) {
-            placeViewModel.getPlacesByCategoryId(categoryId)
+        // PERBAIKAN: Ubah String ke Int sebelum dikirim ke ViewModel
+        categoryId?.toIntOrNull()?.let { id ->
+            placeViewModel.getPlacesByCategoryId(id)
         }
     }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "Daftar Tempat - SamarindaKu") },
+                title = { Text(text = "Tempat - SamarindaKu") },
                 navigationIcon = {
                     // PERBAIKAN: Gunakan popBackStack untuk tombol kembali
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+
                             contentDescription = "Kembali",
                         )
                     }
@@ -95,6 +97,11 @@ fun PlaceList(
 }
 @Composable
 fun PlaceItem(place: Place, navController: NavController) {
+    val context = LocalContext.current
+
+    // 2. Panggil fungsi helper untuk membuat request gambar yang aman
+    val imageRequest = buildAuthorizedImageRequest(context, place.images)
+
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier.fillMaxWidth(),
@@ -107,17 +114,15 @@ fun PlaceItem(place: Place, navController: NavController) {
         ) {
             // PERBAIKAN 1 & 2: Menggunakan satu AsyncImage dengan modifier konsisten
             AsyncImage(
-                model = if (!place.images.isNullOrEmpty()) {
-                    "http://192.168.1.4:8000/${place.images}"
-                } else {
-                    R.drawable.not_found // Fallback jika URL null atau kosong
-                },
+                // Gunakan imageRequest. Jika null, gunakan fallback drawable.
+                model = imageRequest ?: R.drawable.not_found,
                 contentDescription = place.name,
                 contentScale = ContentScale.Crop,
+                // Placeholder akan muncul saat gambar dari URL sedang dimuat
                 placeholder = painterResource(id = R.drawable.not_found),
                 error = painterResource(id = R.drawable.not_found),
                 modifier = Modifier
-                    .size(100.dp) // <-- Modifier yang konsisten
+                    .size(100.dp) // Modifier yang konsisten
                     .clip(RoundedCornerShape(8.dp))
             )
 
@@ -136,7 +141,7 @@ fun PlaceItem(place: Place, navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Alamat tidak tersedia.", // Gunakan data asli jika ada
+                    text = "Alamat: ${place.address}", // Gunakan data asli jika ada
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                     maxLines = 2

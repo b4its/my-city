@@ -1,6 +1,5 @@
 package com.mxlkt.mycities.pages
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,20 +11,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.mxlkt.mycities.R
 import com.mxlkt.mycities.config.Routes
+import com.mxlkt.mycities.config.buildAuthorizedImageRequest
 import com.mxlkt.mycities.data.model.Category
 import com.mxlkt.mycities.data.view.CategoryUiState
 import com.mxlkt.mycities.data.view.DashboardViewModel
-
-import coil.compose.AsyncImage
+import androidx.compose.runtime.remember
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,6 +33,7 @@ fun Dashboards(
     navController: NavController,
     dashboardViewModel: DashboardViewModel = viewModel() // Inject ViewModel
 ) {
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -77,7 +78,8 @@ fun CategoryList(categories: List<Category>, navController: NavController) {
         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(categories) { category ->
+        // SESUDAH (Lebih Cepat):
+        items(items = categories, key = { category -> category.id }) { category ->
             CategoryItem(category = category, navController = navController)
         }
     }
@@ -85,6 +87,13 @@ fun CategoryList(categories: List<Category>, navController: NavController) {
 
 @Composable
 fun CategoryItem(category: Category, navController: NavController) {
+    // 1. Dapatkan context di dalam Composable yang membutuhkannya
+    val context = LocalContext.current
+
+    // 2. Panggil fungsi helper untuk membuat request gambar yang aman
+    val imageRequest = remember(category.images) {
+        buildAuthorizedImageRequest(context, category.images)
+    }
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         // Menambahkan onClick pada Card agar seluruh area bisa diklik
@@ -96,18 +105,15 @@ fun CategoryItem(category: Category, navController: NavController) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically // Membuat item di Row menjadi rata tengah
         ) {
-            // PERBAIKAN 1 & 2: Kondisi aman dan modifier konsisten
-            // Menggunakan satu AsyncImage saja sudah cukup untuk handle semua kondisi.
+            // PERBAIKAN: Gunakan imageRequest yang sudah dibuat
             AsyncImage(
-                model = if (!category.images.isNullOrEmpty()) {
-                    "http://192.168.1.4:8000/${category.images}"
-                } else {
-                    R.drawable.mahakam_bridge // Tampilkan resource jika URL kosong/null
-                },
+                // Gunakan imageRequest. Jika null, gunakan fallback drawable.
+                model = imageRequest ?: R.drawable.not_found,
                 contentDescription = category.name,
                 contentScale = ContentScale.Crop,
                 // Placeholder akan muncul saat gambar dari URL sedang dimuat
-                placeholder = painterResource(id = R.drawable.mahakam_bridge),
+                placeholder = painterResource(id = R.drawable.not_found),
+                error = painterResource(id = R.drawable.not_found),
                 modifier = Modifier
                     .size(100.dp) // Modifier yang konsisten
                     .clip(RoundedCornerShape(8.dp))
@@ -122,25 +128,22 @@ fun CategoryItem(category: Category, navController: NavController) {
                     .weight(1f) // Mengisi sisa ruang agar tombol bisa didorong ke bawah
             ) {
                 Column {
-                    // SARAN: Gunakan style dari MaterialTheme
                     Text(
                         text = category.name,
-                        style = MaterialTheme.typography.titleMedium, // Contoh: Title Medium
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "Temukan ${category.name.lowercase()} terbaik di kota ini.",
-                        style = MaterialTheme.typography.bodySmall, // Contoh: Body Small
-                        color = Color.Gray // Gunakan warna yang lebih lembut
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
                     )
                 }
 
-                // Tombol ini akan terdorong ke pojok kanan bawah Box
                 Button(
                     onClick = {
                         navController.navigate("${Routes.PlaceList}/${category.id}")
                     },
-                    // SARAN: Gunakan warna dari MaterialTheme
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF0D2764),
                         contentColor = MaterialTheme.colorScheme.onPrimary

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -18,9 +19,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("/home/markx/AndroidStudioProjects/MyCities/keystore.jks")
+            storePassword = "ken123"
+            keyAlias = "markx-tech"
+            keyPassword = "ken123"
+        }
+    }
+
     buildTypes {
-        release {
-            isMinifyEnabled = false
+        getByName("release") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -36,6 +48,11 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 
@@ -54,19 +71,25 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
-
     debugImplementation(libs.androidx.ui.test.manifest)
+
     // Jetpack Compose integration
     implementation("androidx.navigation:navigation-compose:2.9.1")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
 
     // Retrofit & Gson
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0") // Opsional, untuk debugging
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
     // ViewModel for Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
 
-    // Untuk build.gradle.kts (Kotlin DSL)
-    implementation("io.coil-kt:coil-compose:2.5.0") // Cek versi terbaru jika perlu
+    // Coil
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    // Kotlinx Serialization
+    implementation(libs.kotlinx.serialization.json)
+
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0") // Versi mungkin berbeda
 }
+

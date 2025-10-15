@@ -1,11 +1,20 @@
 package com.mxlkt.mycities.data.model
-import com.google.gson.annotations.SerializedName
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Place(
     val id: Int,
     val name: String,
-    @SerializedName("idCategory") // Sesuaikan jika nama variabel berbeda dari JSON
+    val address: String? = null,
+
+    @SerialName("idCategory")
     val idCategory: Int,
-    val descriptions: String,
-    val images: String
+
+    // PERBAIKAN: Beri nilai default null agar field ini menjadi opsional
+    val descriptions: String? = null,
+
+    // PERBAIKAN: Lakukan hal yang sama untuk images agar lebih aman
+    val images: String? = null
 )

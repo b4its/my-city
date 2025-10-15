@@ -1,21 +1,46 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# ===================================================================
+# ATURAN UNTUK KOTLINX SERIALIZATION (Versi Disederhanakan)
+# ===================================================================
+-keepclassmembers class * {
+    @kotlinx.serialization.Serializable *;
+}
+-keep class *$$serializer { *; }
+-keepnames class * {
+    @kotlinx.serialization.Serializable *;
+}
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# ===================================================================
+# ATURAN UNTUK LIBRARY UMUM
+# ===================================================================
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Aturan untuk Retrofit & OkHttp
+-keepclassmembers,allowshrinking,allowobfuscation interface * {
+    @retrofit2.http.* <methods>;
+}
+-dontwarn retrofit2.Platform$Java8
+-dontwarn okhttp3.internal.platform.ConscryptPlatform
+
+
+# Aturan untuk Coroutines
+-keepclassmembers class kotlinx.coroutines.internal.MainDispatcherFactory {
+    kotlinx.coroutines.MainCoroutineDispatcher createDispatcher(java.util.List);
+}
+
+
+# ===================================================================
+# ATURAN KHUSUS UNTUK JETPACK COMPOSE
+# ===================================================================
+-keepclassmembers class androidx.compose.runtime.Composer {
+    <methods>;
+}
+-keep class androidx.compose.runtime.internal.ComposableLambda {
+    <fields>;
+    <init>(...);
+}
+-keepclassmembers class * {
+    @androidx.compose.runtime.Composable <methods>;
+}
+-keepclassmembers class **.R$* {
+    <fields>;
+}

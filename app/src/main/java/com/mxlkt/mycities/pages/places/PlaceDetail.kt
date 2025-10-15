@@ -6,7 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -24,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.mxlkt.mycities.R
+import com.mxlkt.mycities.config.buildAuthorizedImageRequest
 import com.mxlkt.mycities.data.model.Place
 import com.mxlkt.mycities.data.view.PlaceDetailUiState
 import com.mxlkt.mycities.data.view.PlaceDetailViewModel
@@ -35,10 +37,10 @@ fun PlaceView(
     navController: NavController,
     viewModel: PlaceDetailViewModel = viewModel()
 ) {
-    // 1. Meminta data ke ViewModel saat layar pertama kali muncul
     LaunchedEffect(key1 = placeId) {
-        if (placeId != null) {
-            viewModel.getPlaceById(placeId)
+        // PERBAIKAN: Ubah String ke Int sebelum dikirim ke ViewModel
+        placeId?.toIntOrNull()?.let { id ->
+            viewModel.getPlaceById(id)
         }
     }
 
@@ -66,6 +68,10 @@ fun PlaceView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaceDetailContent(place: Place, navController: NavController) {
+    val context = LocalContext.current
+
+    // 2. Panggil fungsi helper untuk membuat request gambar yang aman
+    val imageRequest = buildAuthorizedImageRequest(context, place.images)
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -75,7 +81,7 @@ fun PlaceDetailContent(place: Place, navController: NavController) {
                     // 4. Navigasi kembali yang benar
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Kembali"
                         )
                     }
@@ -94,37 +100,25 @@ fun PlaceDetailContent(place: Place, navController: NavController) {
                 .padding(horizontal = 16.dp)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // TODO: Gunakan library seperti Coil untuk memuat gambar dari URL (place.images)
-            if (place.images != null) {
-                // 🖼️ Jika place.images berisi data (tidak null), tampilkan AsyncImage
-                AsyncImage(
-                    model = "http://192.168.1.4:8000/${place.images}",
-                    contentDescription = place.name,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                )
-            } else {
-                // 🖼️ Jika place.images adalah null, tampilkan Image placeholder
-                Image(
-                    painter = painterResource(R.drawable.not_found),
-                    contentDescription = place.name,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                )
-            }
+            AsyncImage(
+                model = imageRequest ?: R.drawable.not_found,
+                contentDescription = place.name,
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(id = R.drawable.not_found),
+                error = painterResource(id = R.drawable.not_found),
+                modifier = Modifier
+                    .size(250.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+
+            // Kurung kurawal yang salah sebelumnya ada di sini, sekarang sudah dihapus.
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 5. Teks dinamis dari data API
             Text(
                 text = place.name,
                 style = TextStyle(
@@ -143,8 +137,9 @@ fun PlaceDetailContent(place: Place, navController: NavController) {
                     fontSize = 16.sp
                 )
             )
-            // Tambahkan spacer di bawah agar ada sedikit ruang saat scroll berakhir
+
             Spacer(modifier = Modifier.height(16.dp))
-        }
+
+        } // <-- PERBAIKAN: Kurung kurawal penutup Column sekarang ada di posisi yang benar.
     }
 }
