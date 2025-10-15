@@ -3,6 +3,7 @@ package com.mxlkt.mycities
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +18,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -37,11 +40,20 @@ fun Index(navController: NavController)
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         item {
-//            Image(
-//                painter = painterResource(id = R.drawable.icon_realarm),
-//                contentDescription = "imageLogin",
-//                modifier = Modifier.size(200.dp)
-//            )
+            Box(
+                modifier = Modifier
+                    .size(200.dp)
+                    .clip(RoundedCornerShape(15.dp)) // Potong Box-nya, bukan Image-nya
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "imageLogin",
+                    // Gunakan ContentScale agar gambar mengisi Box dengan benar
+                    contentScale = ContentScale.Crop,
+                    // Modifier ini penting agar gambar mengisi seluruh area Box
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = "SamarindaKu",

@@ -134,7 +134,7 @@ fun CategoryItem(category: Category, navController: NavController) {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Temukan ${category.name.lowercase()} terbaik di kota ini.",
+                        text = "Temukan ${category.name.lowercase()} terbaik di kota samarinda.",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
